@@ -1,0 +1,301 @@
+;
+; CEBAL Setup Information file v2.50
+; Copyright (C) 2010 Texas Instruments
+;
+; This file supports the following 64-bit operating systems:
+;     Windows XP x64 Edition
+;     Windows Vista x64
+;     Windows 7 x64
+;     Windows Server 2003 x64
+;     Windows Server 2008 x64
+;
+
+;******************************************************************************
+; Version section
+;------------------------------------------------------------------------------
+[Version]
+Signature="$Windows NT$"
+Provider=%S_Provider%
+DriverVer=11/01/2010,2.50.0.0
+
+; The .cat file provided by WHQL as part of driver certification.
+CatalogFile=cebal2_x64.cat
+
+; The supported devices belong to a private device class.
+Class=CebalControlledDevices
+;/*static*/ const GUID CebalEb::GUID_USBIO = { 0xd6c5946b, 0xe0b2, 0x49d8, { 0x87, 0x2f, 0x4c, 0x9f, 0x7b, 0xc2, 0xd8, 0x7d } };
+ClassGUID={D6C5946B-E0B2-49d8-872F-4C9F7BC2D87D}
+
+
+;******************************************************************************
+; Class Install section (needed for the private device class)
+;------------------------------------------------------------------------------
+[ClassInstall32] 
+AddReg=_AddReg_ClassInstall
+
+[_AddReg_ClassInstall]
+HKR,,,,"%S_DeviceClassDisplayName%"
+HKR,,Icon,,"-20"
+
+
+;******************************************************************************
+; Options
+;------------------------------------------------------------------------------
+[ControlFlags]
+; Advanced options can be specified here.
+; For details, refer to the Windows DDK documentation.
+
+
+;******************************************************************************
+; Manufacturer section
+;------------------------------------------------------------------------------
+[Manufacturer]
+%S_Mfg%=_Models, ntamd64
+
+
+;******************************************************************************
+; Models section (specifies the supported device's hardware ID)
+;------------------------------------------------------------------------------
+; x64-based systems
+[_Models.ntamd64]
+%S_DeviceDesc1%=_Install_1, USB\VID_11A0&PID_DB20             ; CC2430DB (Development Board)
+%S_DeviceDesc2%=_Install_2, USB\VID_11A0&PID_EB20             ; SmartRF04EB (Evaluation Board)
+%S_DeviceDesc3%=_Install_3, USB\VID_0451&PID_16A0             ; SmartRF05EB (Evaluation Board)
+%S_DeviceDesc4%=_Install_4, USB\VID_0451&PID_16A2             ; CC Debugger
+%S_DeviceDesc5%=_Install_5, USB\VID_0451&PID_16AB             ; CC2511 USB dongle
+%S_DeviceDesc6%=_Install_6, USB\VID_0451&PID_16AC             ; CC2511 USB nano dongle
+%S_DeviceDesc7%=_Install_7, USB\VID_0451&PID_16AD             ; CC1111 USB dongle
+%S_DeviceDesc8%=_Install_8, USB\VID_0451&PID_16AE             ; CC2531 USB dongle
+%S_DeviceDesc9%=_Install_9, USB\VID_0451&PID_16B2             ; CCxxxx dongle with custom USB bootloader
+%S_DeviceDesc10%=_Install_10, USB\VID_0451&PID_16B3           ; CC2540 USB dongle
+%S_DeviceDesc11%=_Install_11, USB\VID_0451&PID_16B5           ; SmartRF TrxEB (Transceiver Evaluation Board)
+%S_DeviceDesc12%=_Install_12, USB\VID_0451&PID_16B8           ; CCxxxx Evaluation Board
+
+
+;******************************************************************************
+; Install sections x64-based systems
+;------------------------------------------------------------------------------
+;
+; All devices use identical CopyFiles directive.
+;
+[_Install_1.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+[_Install_2.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+[_Install_3.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+[_Install_4.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+[_Install_5.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+[_Install_6.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+[_Install_7.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+[_Install_8.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+[_Install_9.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+[_Install_10.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+[_Install_11.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+[_Install_12.ntamd64]
+CopyFiles=_CopyFiles_sys_x64
+
+;
+; All devices use identical AddService directive.
+;
+[_Install_1.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+[_Install_2.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+[_Install_3.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+[_Install_4.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+[_Install_5.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+[_Install_6.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+[_Install_7.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+[_Install_8.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+[_Install_9.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+[_Install_10.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+[_Install_11.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+[_Install_12.ntamd64.Services]
+AddService = %S_ServiceName%, 0x00000002, _AddService_x64, _EventLog_x64
+
+;
+; Each device has its own AddReg directive for hardware keys.
+;
+[_Install_1.ntamd64.HW]
+AddReg=_AddReg_HW_1
+[_Install_2.ntamd64.HW]
+AddReg=_AddReg_HW_2
+[_Install_3.ntamd64.HW]
+AddReg=_AddReg_HW_3
+[_Install_4.ntamd64.HW]
+AddReg=_AddReg_HW_4
+[_Install_5.ntamd64.HW]
+AddReg=_AddReg_HW_5
+[_Install_6.ntamd64.HW]
+AddReg=_AddReg_HW_6
+[_Install_7.ntamd64.HW]
+AddReg=_AddReg_HW_7
+[_Install_8.ntamd64.HW]
+AddReg=_AddReg_HW_8
+[_Install_9.ntamd64.HW]
+AddReg=_AddReg_HW_9
+[_Install_10.ntamd64.HW]
+AddReg=_AddReg_HW_10
+[_Install_11.ntamd64.HW]
+AddReg=_AddReg_HW_11
+[_Install_12.ntamd64.HW]
+AddReg=_AddReg_HW_12
+
+[_AddService_x64]
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 3                  ; SERVICE_DEMAND_START
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\%S_DriverName_x64%.sys
+
+[_EventLog_x64]
+AddReg=_EventLog_x64_AddReg
+
+[_EventLog_x64_AddReg]
+HKR,,EventMessageFile,%REG_EXPAND_SZ%,"%%SystemRoot%%\System32\IoLogMsg.dll;%%SystemRoot%%\System32\drivers\%S_DriverName_x64%.sys"
+HKR,,TypesSupported,  %REG_DWORD%,7
+
+
+;******************************************************************************
+; Registry sections
+;------------------------------------------------------------------------------
+;
+; Each device has its own unique DriverUserInterfaceGuid (device GUID) registry key.
+;
+[_AddReg_HW_1]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{72C71698-9D0F-4DDA-80A7-8BD76DB59F7C}"      ; CC2430DB
+[_AddReg_HW_2]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{F363FDD8-D316-4B3A-AEF8-73708168AB1F}"      ; SmartRF04EB
+[_AddReg_HW_3]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{7B50E45E-5195-43D0-8EC1-FCBC892220B1}"      ; SmartRF05EB
+[_AddReg_HW_4]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{F05456F9-B009-4F66-9F84-A3752FBF80F2}"      ; CC Debugger
+[_AddReg_HW_5]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{CAC2A41E-3C80-48D1-93EF-B2D331206576}"      ; CC2511 USB dongle
+[_AddReg_HW_6]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{18F5382E-D552-4B6E-919B-B128DC74431C}"      ; CC2511 USB nano dongle
+[_AddReg_HW_7]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{35FFB995-58B7-484B-9EBA-6CB086296A5D}"      ; CC1111 USB dongle
+[_AddReg_HW_8]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{BA2473E8-F4DA-43A5-9521-CC8AFFF7B3D5}"      ; CC2531 USB dongle
+[_AddReg_HW_9]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{F2138A05-A473-44A3-ABA3-239DDDC1168E}"      ; CCxxxx dongle with custom USB bootloader
+[_AddReg_HW_10]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{9F3283D0-CC45-40F4-B456-C0E57ABF089A}"      ; CC2540 USB dongle
+[_AddReg_HW_11]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{7553B5C3-0DA4-487E-8DF2-7337A8230696}"      ; SmartRF TrxEB
+[_AddReg_HW_12]
+HKR,,DriverUserInterfaceGuid,%REG_SZ%,"{E2956AF2-1E1A-46ef-A93B-003817865D85}"      ; CCxxxx Evaluation Board
+
+
+; Driver configuration.
+HKR,, DisableDefaultInterface, %REG_DWORD%, 1
+HKR,,PowerStateOnOpen,      %REG_DWORD%, 0
+HKR,,PowerStateOnClose,     %REG_DWORD%, 0
+HKR,,MinPowerStateUsed,     %REG_DWORD%, 3
+HKR,,MinPowerStateUnused,   %REG_DWORD%, 3
+HKR,,EnableRemoteWakeup,    %REG_DWORD%, 0
+HKR,,AbortPipesOnPowerDown, %REG_DWORD%, 1
+HKR,,UnconfigureOnClose,    %REG_DWORD%, 1
+HKR,,ResetDeviceOnClose,    %REG_DWORD%, 0
+HKR,,MaxIsoPackets,         %REG_DWORD%, 512
+HKR,,ShortTransferOk,       %REG_DWORD%, 1
+HKR,,RequestTimeout,        %REG_DWORD%, 1000
+HKR,,SuppressPnPRemoveDlg,  %REG_DWORD%, 1
+HKR,,ConfigDescMinQuerySize,%REG_DWORD%, 0
+
+
+;******************************************************************************
+; Copy Files section
+;------------------------------------------------------------------------------
+[_CopyFiles_sys_x64]
+; File name of the driver binary.
+cebal2_x64.sys
+
+
+;******************************************************************************
+; Destination Directories
+;------------------------------------------------------------------------------
+[DestinationDirs]
+DefaultDestDir =     12   ; %SystemRoot%\system32\drivers 
+_CopyFiles_sys_x64 = 12
+
+
+;******************************************************************************
+; Disk Layout
+;------------------------------------------------------------------------------
+[SourceDisksNames.amd64]
+1=%S_DiskName%,,
+
+[SourceDisksFiles.amd64]
+; File name of the driver binary.
+cebal2_x64.sys=1
+
+
+;******************************************************************************
+; Text Strings
+;------------------------------------------------------------------------------
+[Strings]
+;
+; Non-Localizable Strings, DO NOT MODIFY!
+;
+REG_SZ         = 0x00000000
+REG_MULTI_SZ   = 0x00010000
+REG_EXPAND_SZ  = 0x00020000
+REG_BINARY     = 0x00000001
+REG_DWORD      = 0x00010001
+
+
+;
+; Localizable Strings
+;
+
+; Provider name.
+S_Provider="Texas Instruments"
+
+; Manufacturer name.
+S_Mfg="Texas Instruments"
+
+; Device class display name, shown in Device Manager
+S_DeviceClassDisplayName="Cebal controlled devices"
+
+; Device descriptions (see also Models section).
+S_DeviceDesc1="CC2430DB"
+S_DeviceDesc2="SmartRF04EB"
+S_DeviceDesc3="SmartRF05EB"
+S_DeviceDesc4="CC Debugger"
+S_DeviceDesc5="CC2511 USB dongle"
+S_DeviceDesc6="CC2511 USB nano dongle"
+S_DeviceDesc7="CC1111 USB dongle"
+S_DeviceDesc8="CC2531 USB dongle"
+S_DeviceDesc9="CCxxxx dongle with custom USB bootloader"
+S_DeviceDesc10="CC2540 USB dongle"
+S_DeviceDesc11="SmartRF TrxEB"
+S_DeviceDesc12="CCxxxx Evaluation Board"
+
+; Disk name.
+S_DiskName="TI Cebal driver folder"
+
+; File name of driver executable.
+S_ServiceName="cebal2x64"
+S_DriverName_x64="cebal2_x64"
+
+
+; *** EOF ***

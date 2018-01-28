@@ -1,5 +1,5 @@
 #include "cc1110.h"
-#include "hal_bui_lcd.h"
+#include "hal_files/hal_bui_lcd.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>

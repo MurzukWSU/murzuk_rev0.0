@@ -53,7 +53,7 @@ typedef struct AX25_Frame
 *********************************************************************************/	
 typedef struct Data_Frame
 {
-	unsigned char data[251];  //Start of AX25 Frame identifier 0xFE
+	unsigned char data[251];  
 	unsigned char master_Frame_Count;
 	unsigned char vc_Frame_Count;
 	unsigned char time_Stamp[8];	
@@ -99,26 +99,32 @@ typedef struct Data_Queue
 unsigned char* decomm_AX25_Packet (struct AX25_Frame *frame);
 
 //AX25 Queue Operation
-AX25_Queue*    create_AX25_Queue  (unsigned char capacity);
-unsigned char  isFullAX25         (AX25_Queue* queue);
-unsigned char  isEmptyAX25        (AX25_Queue* queue);
-unsigned char  enqueueAX25        (AX25_Queue* queue, AX25_Frame* frame);
-AX25_Frame*    dequeueAX25        (AX25_Queue* queue);
+AX25_Queue*    create_AX25_Queue   (unsigned char capacity);
+unsigned char  isFullAX25          (AX25_Queue* queue);
+unsigned char  isEmptyAX25         (AX25_Queue* queue);
+unsigned char  enqueueAX25         (AX25_Queue* queue, AX25_Frame* frame);
+AX25_Frame*    dequeueAX25         (AX25_Queue* queue);
 
 //Data Frame Queue Operation
-Data_Queue*    create_Data_Queue  (unsigned char capacity);
-unsigned char  isFullData         (Data_Queue* queue);
-unsigned char  isEmptyData        (Data_Queue* queue);
-unsigned char  enqueueData        (Data_Queue* queue, Data_Frame* data);
-Data_Frame*    dequeueData        (Data_Queue* queue);
+Data_Queue*    create_Data_Queue   (unsigned char capacity);
+unsigned char  isFullData          (Data_Queue* queue);
+unsigned char  isEmptyData         (Data_Queue* queue);
+unsigned char  enqueueData         (Data_Queue* queue, Data_Frame* data);
+Data_Frame*    dequeueData         (Data_Queue* queue);
+
+//Transmit Operation
+unsigned char  transmit_AX25_Frame (AX25_Frame* frame);
+
+//Receive Operation
+AX25_Frame*  receive_AX25_Frame  (void);
 
 void main(void)
 {
 	AX25_Queue* AX25_TX_Queue = create_AX25_Queue(10);			
 	AX25_Queue* AX25_RX_Queue = create_AX25_Queue(10);	
 
-	Data_Queue* Data_TX_Queue    = create_Data_Queue(10);
-	Data_Queue* Data_RX_Queue    = create_Data_Queue(10);
+	Data_Queue* Data_TX_Queue = create_Data_Queue(10);
+	Data_Queue* Data_RX_Queue = create_Data_Queue(10);
 
 	//Set up control and radio registers for operation
 	PKTCTRL0  = 0x04; //Packet control register
@@ -157,49 +163,15 @@ void main(void)
 	//RFTXRXIF = 0;
 
 
-/*	while(1)
+	while(1)
 	{	
-		RFST = SRX;
 
-		for(i = 0; i < 2; i++)
-		{
-			rxBuffer[i] = 0x00;
-			while(!RFTXRXIF);
-			RFTXRXIF = 0;
-			rxBuffer[i] = RFD;
-		}
 
-		//Wait for IRQ_DONE interrupt flag
-		while((RFIF & 0x10) == 0);
-		RFIF &= ~0x10;
-		P1_0 = 1;
-		RFTXRXIF = 0;
 
-		//Issue STX command strobe to put radio in tx-mode
-		RFST = STX;
-		P1SEL &= ~0x01;
-		P1DIR |= 0x01;
-		P1_0 = 0;
 	
 		
-		//Wait for RFD register to be ready to receive a byte
-		//Note: RFTXRXIF will go high when RFD is ready for a byte in tx-mode
-		for(i = j; i < j + 2; i++)
-		{
-			while(!RFTXRXIF);
-			RFTXRXIF = 0;
-			RFD = txBuffer[i];
-		
-	
-		}
-	
-		//Wait for IRQ_DONE interrupt flag
-		while((RFIF & 0x10) == 0);
-		RFIF &= ~0x10;
-		P1_0 = 1;
-		RFTXRXIF = 0;
 				
-	}*/
+	}
 	
 }
 
@@ -440,3 +412,207 @@ unsigned char* decomm_AX25_Packet(AX25_Frame *frame)
 	free(frame);
 	return 0;	
 }
+
+/********************************************************************************
+*---FUNCTION---
+* Name: transmit_AX25_Frame()
+* Description:
+*	Transmits an AX25 from satellite to ground byte-by-byte through the RFD
+*	register.
+* Parameters:
+*	AX25_Frame* - pointer to the frame to be transmitted
+* Returns:
+*	unsigned char - returns 0 if transmission was completed successfully,
+*	returns 1 if an error occured
+*********************************************************************************/	
+unsigned char transmit_AX25_Frame(AX25_Frame* frame)
+{
+	unsigned char da_Ind   = 0;
+	unsigned char sa_Ind   = 0;
+	unsigned char data_Ind = 0;
+	unsigned char ts_Ind   = 0;
+	
+	//Issue STX command strobe to put radio in tx-mode
+	RFST = STX;
+	
+	//Transmit frame_Start byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	RFD = frame->frame_Start;
+
+	//Transmit dest_Addr bytes (7 bytes)
+	for(da_Ind = 0; da_Ind < 7; da_Ind++)
+	{
+		while(!RFTXRXIF);
+		RFTXRXIF = 0;
+		RFD = frame->dest_Addr[da_Ind];
+	}
+				
+	//Transmit src_Addr bytes (7 bytes)
+	for(sa_Ind = 0; sa_Ind < 7; sa_Ind++)
+	{
+		while(!RFTXRXIF);
+		RFTXRXIF = 0;
+		RFD = frame->src_Addr[sa_Ind];
+	}
+
+	//Transmit control byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	RFD = frame->control;
+	
+	//Transmit proto_Ident byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	RFD = frame->proto_Ident;
+
+	//Transmit frame_ID byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	RFD = frame->frame_ID;
+
+	//Transmit master_Frame_Count byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	RFD = frame->master_Frame_Count;
+
+	//Transmit vc_Frame_Count byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	RFD = frame->vc_Frame_Count;
+
+	//Transmit first_Header_Pointer byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	RFD = frame->first_Header_Pointer;
+
+	//Transmit data bytes (251 bytes)
+	for(data_Ind = 0; data_Ind < 251; data_Ind++)
+	{
+		while(!RFTXRXIF);
+		RFTXRXIF = 0;
+		RFD = frame->data[data_Ind];
+	}
+	
+	//Transmit frame_Status byte 
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	RFD = frame->frame_Status;
+
+
+	//Transmit time_Stamp bytes (8 bytes) 
+	for(ts_Ind = 0; ts_Ind < 8; ts_Ind++)
+	{
+		while(!RFTXRXIF);
+		RFTXRXIF = 0;
+		RFD = frame->time_Stamp[ts_Ind];
+	}
+
+	//Transmit frame_End byte 
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	RFD = frame->frame_End;
+
+	//Wait for IRQ_DONE interrupt flag
+	while((RFIF & 0x10) == 0);
+	RFIF &= ~0x10;
+	RFTXRXIF = 0;
+	
+	return 0;
+}
+
+AX25_Frame* receive_AX25_Frame(void)
+{
+	AX25_Frame* frame = (AX25_Frame *) malloc(sizeof(AX25_Frame));
+	unsigned char da_Ind   = 0;
+	unsigned char sa_Ind   = 0;
+	unsigned char data_Ind = 0;
+	unsigned char ts_Ind   = 0;
+	
+	
+	//Receive frame_Start byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	frame->frame_Start = RFD;
+
+	//Receive dest_Addr bytes (7 bytes)
+	for(da_Ind = 0; da_Ind < 7; da_Ind++)
+	{
+		while(!RFTXRXIF);
+		RFTXRXIF = 0;
+		frame->dest_Addr[da_Ind] = RFD;
+	}
+				
+	//Receive src_Addr bytes (7 bytes)
+	for(sa_Ind = 0; sa_Ind < 7; sa_Ind++)
+	{
+		while(!RFTXRXIF);
+		RFTXRXIF = 0;
+		frame->src_Addr[sa_Ind] = RFD;
+	}
+
+	//Receive control byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	frame->control = RFD;
+	
+	//Receive proto_Ident byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	frame->proto_Ident = RFD;
+
+	//Receive frame_ID byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	frame->frame_ID = RFD;
+
+	//Receive master_Frame_Count byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	frame->master_Frame_Count = RFD;
+
+	//Receive vc_Frame_Count byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	frame->vc_Frame_Count = RFD;
+
+	//Receive first_Header_Pointer byte
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	frame->first_Header_Pointer = RFD;
+
+	//Receive data bytes (251 bytes)
+	for(data_Ind = 0; data_Ind < 251; data_Ind++)
+	{
+		while(!RFTXRXIF);
+		RFTXRXIF = 0;
+		frame->data[data_Ind] = RFD;
+	}
+	
+	//Receive frame_Status byte 
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	frame->frame_Status = RFD;
+
+
+	//Receive time_Stamp bytes (8 bytes) 
+	for(ts_Ind = 0; ts_Ind < 8; ts_Ind++)
+	{
+		while(!RFTXRXIF);
+		RFTXRXIF = 0;
+		frame->time_Stamp[ts_Ind] = RFD;
+	}
+
+	//Receive frame_End byte 
+	while(!RFTXRXIF);
+	RFTXRXIF = 0;
+	frame->frame_End = RFD;
+
+	//Wait for IRQ_DONE interrupt flag
+	while((RFIF & 0x10) == 0);
+	RFIF &= ~0x10;
+	RFTXRXIF = 0;
+
+	return frame;
+}
+

@@ -521,6 +521,17 @@ unsigned char transmit_AX25_Frame(AX25_Frame* frame)
 	return 0;
 }
 
+/********************************************************************************
+*---FUNCTION---
+* Name: receive_AX25_Frame()
+* Description:
+*	Receives an AX25 from ground to satellite byte-by-byte through the RFD
+*	register.
+* Parameters:
+*	NONE
+* Returns:
+*	AX25_Frame* - Pointer to the received AX25_Frame
+*********************************************************************************/	
 AX25_Frame* receive_AX25_Frame(void)
 {
 	AX25_Frame* frame = (AX25_Frame *) malloc(sizeof(AX25_Frame));

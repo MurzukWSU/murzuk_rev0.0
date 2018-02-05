@@ -95,8 +95,13 @@ typedef struct Data_Queue
 
 //---FUNCTION DECLARTIONS---
 
+//Set-Up
+void initConfigRegisters           (void);
+void initClock                     (void);
+void initRFStateMach		   (void);
+
 //Frame Manipulation
-unsigned char* decomm_AX25_Packet (struct AX25_Frame *frame);
+unsigned char* decomm_AX25_Packet  (struct AX25_Frame *frame);
 
 //AX25 Queue Operation
 AX25_Queue*    create_AX25_Queue   (unsigned char capacity);
@@ -120,12 +125,37 @@ AX25_Frame*  receive_AX25_Frame  (void);
 
 void main(void)
 {
+	//Create AX25 Frame and Data Frame RX/TX queues
 	AX25_Queue* AX25_TX_Queue = create_AX25_Queue(10);			
 	AX25_Queue* AX25_RX_Queue = create_AX25_Queue(10);	
 
 	Data_Queue* Data_TX_Queue = create_Data_Queue(10);
 	Data_Queue* Data_RX_Queue = create_Data_Queue(10);
 
+	//Call Initialization functions
+	initConfigRegisters();
+	initClock();
+	initRFStateMach();
+
+	while(1)
+	{	
+				
+	}
+	
+}
+
+/********************************************************************************
+*---FUNCTION---
+* Name: initConfigRegisters()
+* Description:
+*	Configures the the SoC control registers as imported from SmartRFStudio.
+* Parameters:
+*	NONE
+* Returns:
+*	NONE
+*********************************************************************************/	
+void initConfigRegisters(void)
+{
 	//Set up control and radio registers for operation
 	PKTCTRL0  = 0x04; //Packet control register
 	PKTCTRL1  = 0x00; //Packet control register
@@ -148,10 +178,39 @@ void main(void)
 	PA_TABLE0 = 0x60; //PA power setting 0
 	IOCFG0    = 0x06; //Radio test signal configuration (P1_5)
 	PKTLEN    = 2;	  //Packet length
-	
-	CLKCON &= ~0x40;
-	while(CLKCON & 0x40);
 
+}
+
+/********************************************************************************
+*---FUNCTION---
+* Name: initClock()
+* Description:
+*	Configures the clock to run off the 26 MHz HS-XOSC.
+* Parameters:
+*	NONE
+* Returns:
+*	NONE
+*********************************************************************************/	
+void initClock(void)
+{
+	//Configure clock to run off of HS-XOSC (26 MHz) oscillator
+	CLKCON &= ~0x40;
+	//Wait for clock to be stable
+	while(CLKCON & 0x40);
+}
+
+/********************************************************************************
+*---FUNCTION---
+* Name: initRFStateMach()
+* Description:
+*	Issues SIDLE and SCAL command strobes to set-up RFST for operation.
+* Parameters:
+*	NONE
+* Returns:
+*	NONE
+*********************************************************************************/	
+void initRFStateMach(void)
+{
 	//Issue SIDLE command strobe to put radio in idle-mode
 	RFST = SIDLE;
 
@@ -160,19 +219,7 @@ void main(void)
 		     //on every transition from idle-mode to rx-mode/tx-mode
 
 	//Clear RFTXRXIF (RX/TX interrupt flag)
-	//RFTXRXIF = 0;
-
-
-	while(1)
-	{	
-
-
-
-	
-		
-				
-	}
-	
+	RFTXRXIF = 0;
 }
 
 /********************************************************************************

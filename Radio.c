@@ -93,29 +93,24 @@ typedef struct Data_Queue
 } Data_Queue;
 
 
-//---FUNCTION PROTOTYPES---
-
-//Set-Up
-void           initConfigRegisters   (void);
-void	       initClock             (void);
-void	       initRadioStateMachine (void);
+//---FUNCTION DECLARTIONS---
 
 //Frame Manipulation
-unsigned char* decomm_AX25_Packet    (struct AX25_Frame *frame);
+unsigned char* decomm_AX25_Packet (struct AX25_Frame *frame);
 
 //AX25 Queue Operation
-AX25_Queue*    create_AX25_Queue     (unsigned char capacity);
-unsigned char  isFullAX25            (AX25_Queue* queue);
-unsigned char  isEmptyAX25           (AX25_Queue* queue);
-unsigned char  enqueueAX25           (AX25_Queue* queue, AX25_Frame* frame);
-AX25_Frame*    dequeueAX25           (AX25_Queue* queue);
+AX25_Queue*    create_AX25_Queue   (unsigned char capacity);
+unsigned char  isFullAX25          (AX25_Queue* queue);
+unsigned char  isEmptyAX25         (AX25_Queue* queue);
+unsigned char  enqueueAX25         (AX25_Queue* queue, AX25_Frame* frame);
+AX25_Frame*    dequeueAX25         (AX25_Queue* queue);
 
 //Data Frame Queue Operation
-Data_Queue*    create_Data_Queue     (unsigned char capacity);
-unsigned char  isFullData            (Data_Queue* queue);
-unsigned char  isEmptyData           (Data_Queue* queue);
-unsigned char  enqueueData           (Data_Queue* queue, Data_Frame* data);
-Data_Frame*    dequeueData           (Data_Queue* queue);
+Data_Queue*    create_Data_Queue   (unsigned char capacity);
+unsigned char  isFullData          (Data_Queue* queue);
+unsigned char  isEmptyData         (Data_Queue* queue);
+unsigned char  enqueueData         (Data_Queue* queue, Data_Frame* data);
+Data_Frame*    dequeueData         (Data_Queue* queue);
 
 //Transmit Operation
 unsigned char  transmit_AX25_Frame (AX25_Frame* frame);
@@ -125,38 +120,12 @@ AX25_Frame*  receive_AX25_Frame  (void);
 
 void main(void)
 {
-	//Create RX/TX queues for AX25 Frames and Data Frames
 	AX25_Queue* AX25_TX_Queue = create_AX25_Queue(10);			
 	AX25_Queue* AX25_RX_Queue = create_AX25_Queue(10);	
 
 	Data_Queue* Data_TX_Queue = create_Data_Queue(10);
 	Data_Queue* Data_RX_Queue = create_Data_Queue(10);
-	
-	//Call initialization functions
-	initConfigRegisters();	
-	initClock();
-	initRadioStateMachine();
 
-	while(1)
-	{	
-				
-	}
-	
-}
-
-/********************************************************************************
-*---FUNCTION---
-* Name: initConfigRegisters()
-* Description:
-*	Initializes the configuration registers for radio operation imported
-*	from SmartRFStudio.
-* Parameters:
-*	NONE
-* Returns:
-*	NONE
-*********************************************************************************/	
-void initConfigRegisters(void)
-{
 	//Set up control and radio registers for operation
 	PKTCTRL0  = 0x04; //Packet control register
 	PKTCTRL1  = 0x00; //Packet control register
@@ -179,37 +148,10 @@ void initConfigRegisters(void)
 	PA_TABLE0 = 0x60; //PA power setting 0
 	IOCFG0    = 0x06; //Radio test signal configuration (P1_5)
 	PKTLEN    = 2;	  //Packet length
-}
-
-/********************************************************************************
-*---FUNCTION---
-* Name: initClock()
-* Description:
-*	Initializes the clock to run off the HS-XOSC (26 MHz).
-* Parameters:
-*	NONE
-* Returns:
-*	NONE
-*********************************************************************************/	
-void initClock(void)
-{
-	//Initialize clock and wait for clock to be stable
-	CLKCON &= ~0x40; //Set clock to run off HS-XOSC (26 MHz)
+	
+	CLKCON &= ~0x40;
 	while(CLKCON & 0x40);
-}
 
-/********************************************************************************
-*---FUNCTION---
-* Name: initRadioStateMachine()
-* Description:
-*	Issues SIDLE and SCAL strobes to initialize the RST for operation.
-* Parameters:
-*	NONE
-* Returns:
-*	NONE
-*********************************************************************************/	
-void initRadioStateMachine(void)
-{
 	//Issue SIDLE command strobe to put radio in idle-mode
 	RFST = SIDLE;
 
@@ -218,7 +160,19 @@ void initRadioStateMachine(void)
 		     //on every transition from idle-mode to rx-mode/tx-mode
 
 	//Clear RFTXRXIF (RX/TX interrupt flag)
-	RFTXRXIF = 0;
+	//RFTXRXIF = 0;
+
+
+	while(1)
+	{	
+
+
+
+	
+		
+				
+	}
+	
 }
 
 /********************************************************************************

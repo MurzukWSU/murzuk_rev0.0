@@ -11,40 +11,42 @@
 #define STX     0x03
 #define SIDLE   0x04
 
+typedef unsigned char uint8;
+
 /********************************************************************************
 *---STRUCT AX25_FRAME---
 *
 * Description:
 *	Comprises one data frame according to the AX25 specification. All data
-*	fields are unsigned chars. Total length = 251 Bytes.
+*	fields are uint8s. Total length = 251 Bytes.
 *
 *********************************************************************************/	
 typedef struct AX25_Frame
 {
 	//---START---
-	unsigned char frame_Start;  //Start of AX25 Frame identifier 0xFE
+	uint8 frame_Start;  //Start of AX25 Frame identifier 0xFE
 	
 	//Header information
-	unsigned char dest_Addr[7];         //Callsign of destination station in ASCII
-	unsigned char src_Addr[7];          //Callsign of source station in ASCII
-	unsigned char control;              //Packet configuration bits fixed to 0x03
-	unsigned char proto_Ident;          //Packet configuration bits fixed to 0xF0
+	uint8 dest_Addr[7];         //Callsign of destination station in ASCII
+	uint8 src_Addr[7];          //Callsign of source station in ASCII
+	uint8 control;              //Packet configuration bits fixed to 0x03
+	uint8 proto_Ident;          //Packet configuration bits fixed to 0xF0
 
 	//Information Field
-	unsigned char frame_ID;     	    //Packet configuration bits fixed to 0x00
-	unsigned char master_Frame_Count;   //Number of current packet being sent
-	unsigned char vc_Frame_Count;       //Number of current packet in current virtual channel being sent
-	unsigned char first_Header_Pointer; //Not used, hard fixed to 0xFE
-	unsigned char data[251];            //Contains message bits provided by mainboard
-	unsigned char frame_Status;         //Configures time stamp options
-	unsigned char time_Stamp[8];        //Time stamp 	
+	uint8 frame_ID;     	    //Packet configuration bits fixed to 0x00
+	uint8 master_Frame_Count;   //Number of current packet being sent
+	uint8 vc_Frame_Count;       //Number of current packet in current virtual channel being sent
+	uint8 first_Header_Pointer; //Not used, hard fixed to 0xFE
+	uint8 data[251];            //Contains message bits provided by mainboard
+	uint8 frame_Status;         //Configures time stamp options
+	uint8 time_Stamp[8];        //Time stamp 	
 
-	unsigned char frame_End;            //End of AX25 Frame identifier 0xFE
+	uint8 frame_End;            //End of AX25 Frame identifier 0xFE
 	//---END---
 } AX25_Frame;
 
 /********************************************************************************
-*---STRUCT DATA_FIELD---
+*---STRUCT DATA_FRAME---
 *
 * Description:
 *	Comprises one data field to be transferred to or from the communications board
@@ -53,10 +55,10 @@ typedef struct AX25_Frame
 *********************************************************************************/	
 typedef struct Data_Frame
 {
-	unsigned char data[251];  
-	unsigned char master_Frame_Count;
-	unsigned char vc_Frame_Count;
-	unsigned char time_Stamp[8];	
+	uint8 data[251];  
+	uint8 master_Frame_Count;
+	uint8 vc_Frame_Count;
+	uint8 time_Stamp[8];	
 } Data_Frame;
 
 /********************************************************************************
@@ -69,11 +71,11 @@ typedef struct Data_Frame
 *********************************************************************************/	
 typedef struct AX25_Queue
 {
-	unsigned char head;
-	unsigned char tail;
-	unsigned char size;
-	unsigned char capacity;
-	AX25_Frame*   AX25_Frame_Array_List;	
+	uint8       head;
+	uint8       tail;
+	uint8       size;
+	uint8       capacity;
+	AX25_Frame* AX25_Frame_Array_List;	
 } AX25_Queue;
 
 /********************************************************************************
@@ -85,43 +87,43 @@ typedef struct AX25_Queue
 *********************************************************************************/	
 typedef struct Data_Queue
 {
-	unsigned char  head;
-	unsigned char  tail;
-	unsigned char  size;
-	unsigned char  capacity;
-	Data_Frame*    Data_Frame_Array_List;	
+	uint8       head;
+	uint8       tail;
+	uint8       size;
+	uint8       capacity;
+	Data_Frame* Data_Frame_Array_List;	
 } Data_Queue;
 
 
 //---FUNCTION DECLARTIONS---
 
 //Set-Up
-void initConfigRegisters           (void);
-void initClock                     (void);
-void initRFStateMach		   (void);
+void        initConfigRegisters (void);
+void        initClock           (void);
+void        initRFStateMach     (void);
 
 //Frame Manipulation
-unsigned char* decomm_AX25_Packet  (struct AX25_Frame *frame);
+Data_Frame*      decomm_AX25_Packet  (struct AX25_Frame *frame);
 
 //AX25 Queue Operation
-AX25_Queue*    create_AX25_Queue   (unsigned char capacity);
-unsigned char  isFullAX25          (AX25_Queue* queue);
-unsigned char  isEmptyAX25         (AX25_Queue* queue);
-unsigned char  enqueueAX25         (AX25_Queue* queue, AX25_Frame* frame);
-AX25_Frame*    dequeueAX25         (AX25_Queue* queue);
+AX25_Queue* create_AX25_Queue   (uint8 capacity);
+uint8       isFullAX25          (AX25_Queue* queue);
+uint8       isEmptyAX25         (AX25_Queue* queue);
+uint8       enqueueAX25         (AX25_Queue* queue, AX25_Frame* frame);
+AX25_Frame* dequeueAX25         (AX25_Queue* queue);
 
 //Data Frame Queue Operation
-Data_Queue*    create_Data_Queue   (unsigned char capacity);
-unsigned char  isFullData          (Data_Queue* queue);
-unsigned char  isEmptyData         (Data_Queue* queue);
-unsigned char  enqueueData         (Data_Queue* queue, Data_Frame* data);
-Data_Frame*    dequeueData         (Data_Queue* queue);
+Data_Queue* create_Data_Queue   (uint8 capacity);
+uint8  	    isFullData          (Data_Queue* queue);
+uint8       isEmptyData         (Data_Queue* queue);
+uint8       enqueueData         (Data_Queue* queue, Data_Frame* data);
+Data_Frame* dequeueData         (Data_Queue* queue);
 
 //Transmit Operation
-unsigned char  transmit_AX25_Frame (AX25_Frame* frame);
+uint8       transmit_AX25_Frame (AX25_Frame* frame);
 
 //Receive Operation
-AX25_Frame*  receive_AX25_Frame  (void);
+AX25_Frame* receive_AX25_Frame  (void);
 
 void main(void)
 {
@@ -228,17 +230,24 @@ void initRFStateMach(void)
 * Description:
 *	Creates and allocates memory for an AX25 RX or TX queue.
 * Parameters:
-*	unsigned char capacity - capacity of the queue
+*	uint8 capacity - capacity of the queue
 * Returns:
 *	AX25_Queue* - pointer to the create AX25_Queue object
 *********************************************************************************/	
-AX25_Queue* create_AX25_Queue(unsigned char capacity)
+AX25_Queue* create_AX25_Queue(uint8 capacity)
 {
+	//Allocate space for an AX25_Queue
 	AX25_Queue* queue = (AX25_Queue *) malloc(sizeof(AX25_Queue));
+	
+	//Set the capacity of the queue
 	queue->capacity = capacity;
+	
+	//Set the counters for head and tail and set the size of the queue to 0
 	queue->head = 0;
 	queue->size = 0;
 	queue->tail = capacity - 1;
+
+	//Allocate space for the list of AX25_Frames in the queue
 	queue->AX25_Frame_Array_List = (AX25_Frame *) malloc(sizeof(AX25_Frame) * queue->capacity);	
 
 	return queue;
@@ -253,10 +262,10 @@ AX25_Queue* create_AX25_Queue(unsigned char capacity)
 * Parameters:
 *	AX25_Queue* - pointer to the queue	
 * Returns:
-*	unsigned char - boolean value, 1 if queue is full, 0 if queue is not
+*	uint8 - boolean value, 1 if queue is full, 0 if queue is not
 *	full	
 *********************************************************************************/	
-unsigned char isFullAX25(AX25_Queue* queue)
+uint8 isFullAX25(AX25_Queue* queue)
 {
 	return(queue->size == queue->capacity);
 }
@@ -269,10 +278,10 @@ unsigned char isFullAX25(AX25_Queue* queue)
 * Parameters:
 *	AX25_Queue* - pointer to the queue	
 * Returns:
-*	unsigned char - boolean value, 1 if queue is empty, 0 if queue is not
+*	uint8 - boolean value, 1 if queue is empty, 0 if queue is not
 *	empty	
 *********************************************************************************/	
-unsigned char isEmptyAX25(AX25_Queue* queue)
+uint8 isEmptyAX25(AX25_Queue* queue)
 {
 	return(queue->size == 0);
 }
@@ -286,18 +295,27 @@ unsigned char isEmptyAX25(AX25_Queue* queue)
 *	AX25_Queue* - pointer to the queue
 *	AX25_Frame* - pointer to the frame being enqueued	
 * Returns:
-*	unsigned char - boolean value, 1 if enqueue fails, 0 if it succeeds
+*	uint8 - boolean value, 1 if enqueue fails, 0 if it succeeds
 *********************************************************************************/	
-unsigned char enqueueAX25(AX25_Queue* queue, AX25_Frame* frame)
+uint8 enqueueAX25(AX25_Queue* queue, AX25_Frame* frame)
 {
+	//Check to make sure the queue has available space for an additional frame
 	if(isFullAX25(queue))
 	{
 		return 1;
 	}
-	
+		
+	//Adjust the tail counter for the queue
 	queue->tail = (queue->tail + 1) % queue->capacity;
+
+	//Copy the memory from the frame into the queue
 	memcpy(&(queue->AX25_Frame_Array_List[queue->tail]), frame, sizeof(*frame));
+	
+	//Update the size of the queue
 	queue->size = queue->size + 1;
+
+	//Free the memory of the element since it is now in the queue
+	free(frame);
 	
 	return 0;
 }
@@ -316,15 +334,22 @@ AX25_Frame* dequeueAX25(AX25_Queue* queue)
 {
 	AX25_Frame* frame;
 	
+	//Check to make sure the queue has an available element to be dequeued
 	if(isEmptyAX25(queue))
 	{
 		return NULL;
 	}
 
+	//Allocate memory to store the dequeued frame bits
 	frame = (AX25_Frame *) malloc(sizeof(AX25_Frame));	
 
+	//Copy the frame bits from the element in the queue to the new element
 	memcpy(frame, &(queue->AX25_Frame_Array_List[queue->head]), sizeof(queue->AX25_Frame_Array_List[queue->head]));
+
+	//Set the bits of the element in the queue (the queue is fixed capacity so its memory will not be reclaimed)
 	memset(&(queue->AX25_Frame_Array_List[queue->head]), 0x00, sizeof(AX25_Frame));
+
+	//Update the head counter and size values for the queue
 	queue->head = (queue->head + 1) % queue->capacity;
 	queue->size = queue->size - 1;
 
@@ -337,17 +362,24 @@ AX25_Frame* dequeueAX25(AX25_Queue* queue)
 * Description:
 *	Creates and allocates memory for a Data RX or TX queue.
 * Parameters:
-*	unsigned char capacity - the capacity of the queue
+*	uint8 capacity - the capacity of the queue
 * Returns:
 *	Data_Queue* - pointer to the created data queue
 *********************************************************************************/	
-Data_Queue* create_Data_Queue(unsigned char capacity)
+Data_Queue* create_Data_Queue(uint8 capacity)
 {
+	//Allocate memory for the new Data_Queue
 	Data_Queue* queue = (Data_Queue *) malloc(sizeof(Data_Queue));
+	
+	//Set the capacity of the queue
 	queue->capacity = capacity;
+	
+	//Set the counter for the head and tail of the queue, set the size of the queue
 	queue->head = 0;
 	queue->size = 0;
 	queue->tail = capacity - 1;
+	
+	//Allocate memory for the list of Data_Frames in the queue
 	queue->Data_Frame_Array_List = (Data_Frame *) malloc(sizeof(Data_Frame) * queue->capacity);	
 
 	return queue;
@@ -363,10 +395,10 @@ Data_Queue* create_Data_Queue(unsigned char capacity)
 * Parameters:
 *	Data_Queue* - pointer to the queue	
 * Returns:
-*	unsigned char - boolean value, 1 if queue is full, 0 if queue is not
+*	uint8 - boolean value, 1 if queue is full, 0 if queue is not
 *	full	
 *********************************************************************************/	
-unsigned char isFullData(Data_Queue* queue)
+uint8 isFullData(Data_Queue* queue)
 {
 	return(queue->size == queue->capacity);
 }
@@ -379,12 +411,11 @@ unsigned char isFullData(Data_Queue* queue)
 * Parameters:
 *	Data_Queue* - pointer to the queue	
 * Returns:
-*	unsigned char - boolean value, 1 if queue is empty, 0 if queue is not
+*	uint8 - boolean value, 1 if queue is empty, 0 if queue is not
 *	empty	
 *********************************************************************************/	
-unsigned char isEmptyData(Data_Queue* queue)
+uint8 isEmptyData(Data_Queue* queue)
 {
-
 	return(queue->size == 0);
 }
 
@@ -397,18 +428,27 @@ unsigned char isEmptyData(Data_Queue* queue)
 *	Data_Queue* - pointer to the queue
 *	Data_Frame* - pointer to the frame being enqueued	
 * Returns:
-*	unsigned char - boolean value, 1 if enqueue fails, 0 if it succeeds
+*	uint8 - boolean value, 1 if enqueue fails, 0 if it succeeds
 *********************************************************************************/	
-unsigned char enqueueData(Data_Queue* queue, Data_Frame* data)
+uint8 enqueueData(Data_Queue* queue, Data_Frame* data)
 {
+	//Check to make sure the queue has available space to enqueue the new item
 	if(isFullData(queue))
 	{
 		return 1;
 	}
 	
+	//Adjust the position of the tail counter
 	queue->tail = (queue->tail + 1) % queue->capacity;
+
+	//Copy the bits from the Data_Frame into the queue
 	memcpy(&(queue->Data_Frame_Array_List[queue->tail]), data, sizeof(*data));
+
+	//Update the size of the queue
 	queue->size = queue->size + 1;
+
+	//Free the memory for the original Data_Frame
+	free(data);
 	
 	return 0;
 }
@@ -427,15 +467,25 @@ Data_Frame* dequeueData(Data_Queue* queue)
 {
 	Data_Frame* data;
 	
+	//Check to make sure the queue has at least element that can be dequeued
 	if(isEmptyData(queue))
 	{
 		return NULL;
 	}
 
-	data = (Data_Frame *) malloc(sizeof(Data_Frame));	
+	//Allocate space to return the dequeued Data_Frame
+	data = (Data_Frame *) malloc(sizeof(Data_Frame));
+
+	//Copy over the bits from the element in the queue to new Data_Frame	
 	memcpy(data, &(queue->Data_Frame_Array_List[queue->head]), sizeof(queue->Data_Frame_Array_List[queue->head]));
+	
+	//Set the bits in the queue (since the queue is fixed capacity memory will not be freed, this "clears" the memory)
 	memset(&(queue->Data_Frame_Array_List[queue->head]), 0x00, sizeof(Data_Frame));
+	
+	//Adjust the head pointer of the queue
 	queue->head = (queue->head + 1) % queue->capacity;
+	
+	//Update the size of the queue
 	queue->size = queue->size - 1;
 
 	return data;
@@ -449,15 +499,29 @@ Data_Frame* dequeueData(Data_Queue* queue)
 * Parameters:
 *	AX25_Frame* - pointer to the frame to be decommutated
 * Returns:
-*	unsigned char* - data field from the AX25 frame
+*	Data_Frame* - data field (and other fields) from the AX25 frame
 *********************************************************************************/	
-unsigned char* decomm_AX25_Packet(AX25_Frame *frame)
+Data_Frame* decomm_AX25_Packet(AX25_Frame *frame)
 {
 	//Extract data bits from AX25 Packet
-	static unsigned char data_bits[251];
-	memcpy(data_bits, frame->data, sizeof(frame->data));	
+	Data_Frame* dataFrame = (Data_Frame *) malloc (sizeof(Data_Frame));
+	
+	//Copy data bits from AX25_Frame to Data_Frame	
+	memcpy(dataFrame->data, frame->data, sizeof(frame->data));
+	
+	//Copy master frame count byte from AX25_Frame to Data_Frame
+	memcpy(&(dataFrame->master_Frame_Count), &(frame->master_Frame_Count), sizeof(uint8));
+
+	//Copy vc frame count byte from AX25_Frame to Data_Frame
+	memcpy(&(dataFrame->vc_Frame_Count), &(frame->vc_Frame_Count), sizeof(uint8));
+
+	//Copy time stamp information from AX25_Frame to Data_Frame
+	memcpy(dataFrame->time_Stamp, frame->time_Stamp, sizeof(uint8) * 8);	
+	
+	//Decomm'd AX25_Frame is no longer needed so free the memory
 	free(frame);
-	return 0;	
+
+	return dataFrame;	
 }
 
 /********************************************************************************
@@ -469,15 +533,15 @@ unsigned char* decomm_AX25_Packet(AX25_Frame *frame)
 * Parameters:
 *	AX25_Frame* - pointer to the frame to be transmitted
 * Returns:
-*	unsigned char - returns 0 if transmission was completed successfully,
+*	uint8 - returns 0 if transmission was completed successfully,
 *	returns 1 if an error occured
 *********************************************************************************/	
-unsigned char transmit_AX25_Frame(AX25_Frame* frame)
+uint8 transmit_AX25_Frame(AX25_Frame* frame)
 {
-	unsigned char da_Ind   = 0;
-	unsigned char sa_Ind   = 0;
-	unsigned char data_Ind = 0;
-	unsigned char ts_Ind   = 0;
+	uint8 da_Ind   = 0;
+	uint8 sa_Ind   = 0;
+	uint8 data_Ind = 0;
+	uint8 ts_Ind   = 0;
 	
 	//Issue STX command strobe to put radio in tx-mode
 	RFST = STX;
@@ -582,10 +646,10 @@ unsigned char transmit_AX25_Frame(AX25_Frame* frame)
 AX25_Frame* receive_AX25_Frame(void)
 {
 	AX25_Frame* frame = (AX25_Frame *) malloc(sizeof(AX25_Frame));
-	unsigned char da_Ind   = 0;
-	unsigned char sa_Ind   = 0;
-	unsigned char data_Ind = 0;
-	unsigned char ts_Ind   = 0;
+	uint8 da_Ind   = 0;
+	uint8 sa_Ind   = 0;
+	uint8 data_Ind = 0;
+	uint8 ts_Ind   = 0;
 	
 	
 	//Receive frame_Start byte

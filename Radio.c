@@ -5,11 +5,19 @@
 #include <stdlib.h>
 
 //Define RFST constant values
-#define SFSTXON 0x00
-#define SCAL    0x01
-#define SRX     0x02
-#define STX     0x03
-#define SIDLE   0x04
+#define SFSTXON             0x00
+#define SCAL                0x01
+#define SRX                 0x02
+#define STX                 0x03
+#define SIDLE               0x04
+
+//Define AX25 Frame Constants
+#define AX25_FRAME_START    0xFE
+#define AX25_CONTROL        0x03
+#define AX25_PROTO_IDENT    0xF0
+#define AX25_FRAME_ID       0x00
+#define AX25_1ST_HEADER_PTR 0xFE
+#define AX25_FRAME_END 	    0xFE
 
 typedef unsigned char uint8;
 

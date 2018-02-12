@@ -35,6 +35,8 @@ echo " "
 
 # Compile source file
 echo "-------------COMPILING-------------"
+sdcc -c ./source/AX25Frame.c --model-medium
+sdcc -c ./source/DataFrame.c --model-medium
 sdcc -c ./source/Radio.c --model-medium
 echo "***   Compiling Radio.c"
 echo "***   Compilation complete"
@@ -46,34 +48,96 @@ echo "---------ORGANIZING FILES----------"
 # Check to see if Radio.asm, Radio.lst, Radio.rel, and Radio.sym exists
 if [ -e "./Radio.asm" ] 
 then
-	echo "***   MOVING .asm FILE TO SOURCE DIRECTORY"
+	echo "***   MOVING Radio.asm FILE TO SOURCE DIRECTORY"
 	mv ./Radio.asm $DEBUG_DEST_DIR
 else
-	echo "!!! ERROR !!! .asm FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+	echo "!!! ERROR !!! Radio.asm FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
 fi
 
 if [ -e "./Radio.lst" ]
 then
-	echo "***   MOVING .lst FILE TO SOURCE DIRECTORY"
+	echo "***   MOVING Radio.lst FILE TO SOURCE DIRECTORY"
 	mv ./Radio.lst $SRC_DIR
 else
-	echo "!!! ERROR !!! .lst FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+	echo "!!! ERROR !!! Radio.lst FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
 fi
 
 if [ -e "./Radio.rel" ]
 then
-	echo "***   MOVING .rel FILE TO SOURCE DIRECTORY"
+	echo "***   MOVING Radio.rel FILE TO SOURCE DIRECTORY"
 	mv ./Radio.rel $SRC_DIR
 else
-	echo "!!! ERROR !!! .rel FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+	echo "!!! ERROR !!! Radio.rel FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
 fi
 
 if [ -e "./Radio.sym" ]
 then
-	echo "***   MOVING .sym FILE TO DEBUG DIRECTORY"
+	echo "***   MOVING Radio.sym FILE TO DEBUG DIRECTORY"
 	mv ./Radio.sym $DEBUG_DEST_DIR
 else
-	echo "!!! ERROR !!! .sym FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+	echo "!!! ERROR !!! Radio.sym FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
+
+if [ -e "./AX25Frame.asm" ] 
+then
+	echo "***   MOVING AX25Frame.asm FILE TO SOURCE DIRECTORY"
+	mv ./AX25Frame.asm $DEBUG_DEST_DIR
+else
+	echo "!!! ERROR !!! AX25Frame.asm FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
+
+if [ -e "./AX25Frame.lst" ]
+then
+	echo "***   MOVING AX25Frame.lst FILE TO SOURCE DIRECTORY"
+	mv ./AX25Frame.lst $SRC_DIR
+else
+	echo "!!! ERROR !!! AX25Frame.lst FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
+if [ -e "./AX25Frame.rel" ]
+then
+	echo "***   MOVING AX25Frame.rel FILE TO SOURCE DIRECTORY"
+	mv ./AX25Frame.rel $SRC_DIR
+else
+	echo "!!! ERROR !!! AX25Frame.rel FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
+
+if [ -e "./AX25Frame.sym" ]
+then
+	echo "***   MOVING AX25Frame.sym FILE TO DEBUG DIRECTORY"
+	mv ./AX25Frame.sym $DEBUG_DEST_DIR
+else
+	echo "!!! ERROR !!! AX25Frame.sym FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
+
+if [ -e "./DataFrame.asm" ] 
+then
+	echo "***   MOVING DataFrame.asm FILE TO SOURCE DIRECTORY"
+	mv ./DataFrame.asm $DEBUG_DEST_DIR
+else
+	echo "!!! ERROR !!! DataFrame.asm FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
+
+if [ -e "./DataFrame.lst" ]
+then
+	echo "***   MOVING DataFrame.lst FILE TO SOURCE DIRECTORY"
+	mv ./DataFrame.lst $SRC_DIR
+else
+	echo "!!! ERROR !!! DataFrame.lst FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
+if [ -e "./DataFrame.rel" ]
+then
+	echo "***   MOVING DataFrame.rel FILE TO SOURCE DIRECTORY"
+	mv ./DataFrame.rel $SRC_DIR
+else
+	echo "!!! ERROR !!! DataFrame.rel FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
+
+if [ -e "./DataFrame.sym" ]
+then
+	echo "***   MOVING DataFrame.sym FILE TO DEBUG DIRECTORY"
+	mv ./DataFrame.sym $DEBUG_DEST_DIR
+else
+	echo "!!! ERROR !!! DataFrame.sym FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
 fi
 echo "-----------------------------------"
 echo " "
@@ -81,44 +145,45 @@ echo " "
 
 echo "--------LINKING OBJECT FILES-------"
 # Link object files and generate output hex file
-sdcc ./source/Radio.rel --model-medium
+sdcc ./source/Radio.rel ./source/AX25Frame.rel ./source/DataFrame.rel --model-medium
 echo "*** Linking Radio.rel"
+echo "*** Linking AX25Frame.rel"
+echo "*** Linking DataFrame.rel"
 echo "*** Linking complete"
 echo "-----------------------------------"
 echo " "
 
 echo "---------ORGANIZING FILES----------"
-# Check to see if Radio.ihx exists
 if [ -e "./Radio.ihx" ]
 then
-	echo "***   MOVING .ihx FILE TO BIN DIRECTORY"
+	echo "***   MOVING Radio.ihx FILE TO BIN DIRECTORY"
 	mv ./Radio.ihx $BIN_DEST_DIR/Radio.hex
 else
-	echo "HEX FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+	echo "!!! ERROR !!! Radio.ihx FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
 fi
 
 if [ -e "./Radio.lk" ]
 then
-	echo "***   MOVING .sym FILE TO DEBUG DIRECTORY"
+	echo "***   MOVING Radio.lk FILE TO DEBUG DIRECTORY"
 	mv ./Radio.lk $DEBUG_DEST_DIR
 else
-	echo "!!! ERROR !!! .lk FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+	echo "!!! ERROR !!! Radio.lk FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
 fi
 
 if [ -e "./Radio.map" ]
 then
-	echo "***   MOVING .map FILE TO DEBUG DIRECTORY"
+	echo "***   MOVING Radio.map FILE TO DEBUG DIRECTORY"
 	mv ./Radio.map $DEBUG_DEST_DIR
 else
-	echo "!!! ERROR !!! .map FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+	echo "!!! ERROR !!! Radio.map FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
 fi
 
 if [ -e "./Radio.mem" ]
 then
-	echo "***   MOVING .mem FILE TO DEBUG DIRECTORY"
+	echo "***   MOVING Radio.mem FILE TO DEBUG DIRECTORY"
 	mv ./Radio.mem $DEBUG_DEST_DIR
 else
-	echo "!!! ERROR !!! .mem FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+	echo "!!! ERROR !!! Radio.mem FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
 fi
 echo "-----------------------------------"
 echo " "

@@ -2,9 +2,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
-#ifndef EVERYTHING
-#define EVERYTHING
 //Define RFST constant values
 #define SFSTXON             0x00
 #define SCAL                0x01
@@ -65,6 +64,8 @@ typedef struct AX25_Frame
 typedef struct Data_Frame
 {
 	uint8 data[251];  
+	uint8 dest_Addr[7];
+	uint8 src_Addr[7];
 	uint8 master_Frame_Count;
 	uint8 vc_Frame_Count;
 	uint8 time_Stamp[8];	
@@ -107,33 +108,35 @@ typedef struct Data_Queue
 //---FUNCTION DECLARTIONS---
 
 //Set-Up
-void        initConfigRegisters (void);
-void        initClock           (void);
-void        initRFStateMach     (void);
+void        initConfigRegisters 	(void);
+void        initClock           	(void);
+void        initRFStateMach     	(void);
 
 //Frame Manipulation
-Data_Frame* decomm_AX25_Packet  (struct AX25_Frame *frame);
+Data_Frame* decomm_AX25_Packet  	(struct AX25_Frame *frame);
 
 //AX25 Queue Operation
-AX25_Queue* create_AX25_Queue   (uint8 capacity);
-uint8       isFullAX25          (AX25_Queue* queue);
-uint8       isEmptyAX25         (AX25_Queue* queue);
-uint8       enqueueAX25         (AX25_Queue* queue, AX25_Frame* frame);
-AX25_Frame* dequeueAX25         (AX25_Queue* queue);
+AX25_Queue* create_AX25_Queue   	(uint8 capacity);
+uint8       isFullAX25          	(AX25_Queue* queue);
+uint8       isEmptyAX25         	(AX25_Queue* queue);
+uint8       enqueueAX25         	(AX25_Queue* queue, AX25_Frame* frame);
+AX25_Frame* dequeueAX25         	(AX25_Queue* queue);
 
 //Data Frame Queue Operation
-Data_Queue* create_Data_Queue   (uint8 capacity);
-uint8  	    isFullData          (Data_Queue* queue);
-uint8       isEmptyData         (Data_Queue* queue);
-uint8       enqueueData         (Data_Queue* queue, Data_Frame* data);
-Data_Frame* dequeueData         (Data_Queue* queue);
+Data_Queue* create_Data_Queue   	(uint8 capacity);
+uint8  	    isFullData          	(Data_Queue* queue);
+uint8       isEmptyData         	(Data_Queue* queue);
+uint8       enqueueData         	(Data_Queue* queue, Data_Frame* data);
+Data_Frame* dequeueData                 (Data_Queue* queue);
 
 //Transmit Operation
-uint8       transmit_AX25_Frame (AX25_Frame* frame);
+uint8       transmit_AX25_Frame         (AX25_Frame* frame);
 
 //Receive Operation
-AX25_Frame* receive_AX25_Frame  (void);
-#endif
+AX25_Frame* receive_AX25_Frame          (void);
+
+//Helper Functions For AX25 Frame Construction
+AX25_Frame* construct_AX25_Packet       (Data_Frame* frame);
 
 void main(void)
 {
@@ -503,6 +506,54 @@ Data_Frame* dequeueData(Data_Queue* queue)
 
 /********************************************************************************
 *---FUNCTION---
+* Name: construct_AX25_Packet()
+* Description:
+*	Constructs an AX25_Frame to be transmitted.
+* Parameters:
+*	Data_Frame* frame
+* Returns:
+*	AX25_Frame* - Pointer to the constructed AX25_Frame
+*********************************************************************************/
+AX25_Frame* construct_AX25_Packet(Data_Frame* frame)
+{
+	uint8 ts_Ind = 0;
+	//Allocate memory for new AX25_Frame
+	AX25_Frame* new_Frame_Ptr           = (AX25_Frame *)malloc(sizeof(AX25_Frame));
+	
+	//Set the frame start byte
+	new_Frame_Ptr->frame_Start          = AX25_FRAME_START;
+	
+	//Copy the source and destination addresses from the Data_Frame
+	memcpy(new_Frame_Ptr->src_Addr, frame->src_Addr, sizeof(frame->src_Addr));
+	memcpy(new_Frame_Ptr->dest_Addr, frame->dest_Addr, sizeof(frame->dest_Addr));
+
+	//Set control, protocol ident., and frame ID bytes
+	new_Frame_Ptr->control              = AX25_CONTROL;
+	new_Frame_Ptr->proto_Ident          = AX25_PROTO_IDENT;
+	new_Frame_Ptr->frame_ID             = AX25_FRAME_ID;
+
+	//Set the frame count bytes and first header pointer byte
+	new_Frame_Ptr->master_Frame_Count   = frame->master_Frame_Count;
+	new_Frame_Ptr->vc_Frame_Count       = frame->vc_Frame_Count;
+	new_Frame_Ptr->first_Header_Pointer = AX25_1ST_HEADER_PTR;
+	
+	//Copy the data field from the Data_Frame
+	memcpy(new_Frame_Ptr->data, frame->data, sizeof(frame->data));
+	
+	//Set the frame status byte
+	new_Frame_Ptr->frame_Status         = 0xF0;
+
+	//Copy the time stamp bytes from the Data_Frame
+	memcpy(new_Frame_Ptr->time_Stamp, frame->time_Stamp, sizeof(frame->time_Stamp));	
+
+	//Set the frame end byte
+	new_Frame_Ptr->frame_End            = AX25_FRAME_END;
+
+	return new_Frame_Ptr;
+}
+
+/********************************************************************************
+*---FUNCTION---
 * Name: decomm_AX25_Packet()
 * Description:
 *	Extracts the data field from an AX25 packet and other pertinent fields.
@@ -519,11 +570,15 @@ Data_Frame* decomm_AX25_Packet(AX25_Frame *frame)
 	//Copy data bits from AX25_Frame to Data_Frame	
 	memcpy(dataFrame->data, frame->data, sizeof(frame->data));
 	
-	//Copy master frame count byte from AX25_Frame to Data_Frame
-	memcpy(&(dataFrame->master_Frame_Count), &(frame->master_Frame_Count), sizeof(uint8));
+	//Copy destination address bytes from AX25_Frame to Data_Frame
+	memcpy(dataFrame->dest_Addr, frame->dest_Addr, sizeof(frame->dest_Addr));
 
-	//Copy vc frame count byte from AX25_Frame to Data_Frame
-	memcpy(&(dataFrame->vc_Frame_Count), &(frame->vc_Frame_Count), sizeof(uint8));
+	//Copy source address bytes from AX25_Frame to Data_Frame
+	memcpy(dataFrame->src_Addr, frame->src_Addr, sizeof(frame->src_Addr));
+
+	//Set master and virtual frame count bytes in Data_Frame
+	dataFrame->master_Frame_Count = frame->master_Frame_Count;	
+	dataFrame->vc_Frame_Count = frame->vc_Frame_Count;	
 
 	//Copy time stamp information from AX25_Frame to Data_Frame
 	memcpy(dataFrame->time_Stamp, frame->time_Stamp, sizeof(uint8) * 8);	

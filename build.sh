@@ -35,7 +35,7 @@ echo " "
 
 # Compile source file
 echo "-------------COMPILING-------------"
-sdcc -c ./source/Radio.c
+sdcc -c ./source/Radio.c --model-medium
 echo "***   Compiling Radio.c"
 echo "***   Compilation complete"
 echo "-----------------------------------"
@@ -81,7 +81,7 @@ echo " "
 
 echo "--------LINKING OBJECT FILES-------"
 # Link object files and generate output hex file
-sdcc ./source/Radio.rel
+sdcc ./source/Radio.rel --model-medium
 echo "*** Linking Radio.rel"
 echo "*** Linking complete"
 echo "-----------------------------------"

@@ -35,6 +35,7 @@ echo " "
 
 # Compile source file
 echo "-------------COMPILING-------------"
+sdcc -c ./source/_heap.c -D HEAP_SIZE=8192 --model-large
 sdcc -c ./source/AX25Frame.c --model-large
 sdcc -c ./source/DataFrame.c --model-large
 sdcc -c ./source/Radio.c --model-large
@@ -141,13 +142,44 @@ then
 else
 	echo "!!! ERROR !!! DataFrame.sym FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
 fi
+
+if [ -e "./_heap.asm" ] 
+then
+	echo "***   MOVING _heap.asm FILE TO SOURCE DIRECTORY"
+	mv ./_heap.asm $DEBUG_DEST_DIR
+else
+	echo "!!! ERROR !!! _heap.asm FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
+
+if [ -e "./_heap.lst" ]
+then
+	echo "***   MOVING _heap.lst FILE TO SOURCE DIRECTORY"
+	mv ./_heap.lst $SRC_DIR
+else
+	echo "!!! ERROR !!! _heap.lst FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
+if [ -e "./_heap.rel" ]
+then
+	echo "***   MOVING _heap.rel FILE TO SOURCE DIRECTORY"
+	mv ./_heap.rel $SRC_DIR
+else
+	echo "!!! ERROR !!! _heap.rel FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
+
+if [ -e "./_heap.sym" ]
+then
+	echo "***   MOVING _heap.sym FILE TO DEBUG DIRECTORY"
+	mv ./_heap.sym $DEBUG_DEST_DIR
+else
+	echo "!!! ERROR !!! _heap.sym FILE NOT FOUND - CHECK IF COMPILATION WAS SUCCESSFUL"
+fi
 echo "-----------------------------------"
 echo " "
 
 
 echo "--------LINKING OBJECT FILES-------"
 # Link object files and generate output hex file
-sdcc ./source/Radio.rel ./source/AX25Frame.rel ./source/DataFrame.rel --model-large
+sdcc ./source/Radio.rel ./source/AX25Frame.rel ./source/DataFrame.rel ./source/_heap.rel --model-large
 echo "*** Linking Radio.rel"
 echo "*** Linking AX25Frame.rel"
 echo "*** Linking DataFrame.rel"

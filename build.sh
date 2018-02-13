@@ -35,9 +35,11 @@ echo " "
 
 # Compile source file
 echo "-------------COMPILING-------------"
-sdcc -c ./source/AX25Frame.c --model-medium
-sdcc -c ./source/DataFrame.c --model-medium
-sdcc -c ./source/Radio.c --model-medium
+sdcc -c ./source/AX25Frame.c --model-large
+sdcc -c ./source/DataFrame.c --model-large
+sdcc -c ./source/Radio.c --model-large
+echo "***   Compiling AX25Frame.c"
+echo "***   Compiling DataFrame.c"
 echo "***   Compiling Radio.c"
 echo "***   Compilation complete"
 echo "-----------------------------------"
@@ -145,7 +147,7 @@ echo " "
 
 echo "--------LINKING OBJECT FILES-------"
 # Link object files and generate output hex file
-sdcc ./source/Radio.rel ./source/AX25Frame.rel ./source/DataFrame.rel --model-medium
+sdcc ./source/Radio.rel ./source/AX25Frame.rel ./source/DataFrame.rel --model-large
 echo "*** Linking Radio.rel"
 echo "*** Linking AX25Frame.rel"
 echo "*** Linking DataFrame.rel"
